@@ -473,21 +473,24 @@ func writeStruct(w io.Writer, val reflect.Value) (err error) {
 	}
 
 	typ := val.Type()
+	var svList stringValueArray
 
-	numFields := val.NumField()
-	svList := make(stringValueArray, numFields)
-
-	for i := 0; i < numFields; i++ {
+	for i := 0; i < val.NumField(); i++ {
 		field := typ.Field(i)
-		bencodeKey(field, &svList[i])
+		// Skip unexported fields
+		if field.PkgPath != "" {
+			continue
+		}
+		
+		var sv stringValue
+		bencodeKey(field, &sv)
 		// The tag `bencode:"-"` should mean that this field must be ignored
 		// See https://golang.org/pkg/encoding/json/#Marshal or https://golang.org/pkg/encoding/xml/#Marshal
-		// We set a zero value so that it is ignored by the writeSVList() function
-		if svList[i].key == "-" {
-			svList[i].value = reflect.Value{}
-		} else {
-			svList[i].value = val.Field(i)
+		if sv.key == "-" {
+			continue
 		}
+		sv.value = val.Field(i)
+		svList = append(svList, sv)
 	}
 
 	err = writeSVList(w, svList)

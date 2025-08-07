@@ -357,7 +357,6 @@ func TestMarshalWithOmitEmptyFieldNonEmpty(t *testing.T) {
 }
 
 func TestMarshalDifferentTypes(t *testing.T) {
-
 	buf := new(bytes.Buffer)
 	Marshal(buf, []byte{'1', '2', '3'})
 	if buf.String() != "3:123" {
@@ -368,5 +367,40 @@ func TestMarshalDifferentTypes(t *testing.T) {
 	Marshal(buf, []int{1, 2, 3})
 	if buf.String() != "li1ei2ei3ee" {
 		t.Fatalf("Incorrectly encoded byte array, got %s", buf.String())
+	}
+}
+
+type publicPrivateStruct struct {
+	PublicField  string
+	privateField string
+}
+
+func TestMarshalOnlyPublicFields(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    interface{}
+		expected string
+	}{
+		{
+			name: "struct with public and private fields",
+			input: publicPrivateStruct{
+				PublicField:  "public",
+				privateField: "private",
+			},
+			expected: "d11:PublicField6:publice",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var buf bytes.Buffer
+			err := Marshal(&buf, tt.input)
+			if err != nil {
+				t.Fatalf("Marshal() error = %v", err)
+			}
+			if got := buf.String(); got != tt.expected {
+				t.Errorf("Marshal() = %v, want %v", got, tt.expected)
+			}
+		})
 	}
 }
