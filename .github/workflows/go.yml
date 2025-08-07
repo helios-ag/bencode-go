@@ -2,9 +2,9 @@ name: Go
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main ]
 
 jobs:
   test:
@@ -12,10 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go-version: [ '1.24.x', '1.23.x', '1.22.x', 'tip' ]
-        include:
-          - go-version: 'tip'
-            experimental: true
+        go-version: [ '1.24.x', '1.23.x', '1.22.x' ]
     steps:
     - uses: actions/checkout@v3
 
@@ -29,10 +26,5 @@ jobs:
       run: go get -d -v . && go install -v .
 
     - name: Test
-      if: "!matrix.experimental"
       run: go test -v .
-
-    - name: Test (experimental)
-      if: matrix.experimental
-      run: go test -v .
-      continue-on-error: true
+      

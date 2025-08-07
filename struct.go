@@ -249,9 +249,9 @@ func (b *structBuilder) Key(k string) builder {
 //
 // unmarshalling the bencode syntax string
 //
-//	"d5:emailld5:where4:home4:addr15:gre@example.come\
-//  d5:where4:work4:addr12:gre@work.comee4:name14:Gr\
-//  ace R. Emlin7:address15:123 Main Streete"
+//		"d5:emailld5:where4:home4:addr15:gre@example.come\
+//	 d5:where4:work4:addr12:gre@work.comee4:name14:Gr\
+//	 ace R. Emlin7:address15:123 Main Streete"
 //
 // via Unmarshal(s, &r) is equivalent to assigning
 //
@@ -280,7 +280,6 @@ func (b *structBuilder) Key(k string) builder {
 //
 // To unmarshal a top-level bencode array, pass in a pointer to an empty
 // slice of the correct type.
-//
 func Unmarshal(r io.Reader, val interface{}) (err error) {
 	// If e represents a value, the answer won't get back to the
 	// caller.  Make sure it's a pointer.
@@ -481,7 +480,7 @@ func writeStruct(w io.Writer, val reflect.Value) (err error) {
 		if field.PkgPath != "" {
 			continue
 		}
-		
+
 		var sv stringValue
 		bencodeKey(field, &sv)
 		// The tag `bencode:"-"` should mean that this field must be ignored
@@ -589,11 +588,11 @@ func (sv stringValue) isValueNil() bool {
 // but can be specified in the struct field's tag value. The text of
 // the struct field's tag value is the key name. Examples:
 //
-//   // Field appears in bencode as key "Field".
-//   Field int
+//	// Field appears in bencode as key "Field".
+//	Field int
 //
-//   // Field appears in bencode as key "myName".
-//   Field int "myName"
+//	// Field appears in bencode as key "myName".
+//	Field int "myName"
 //
 // Anonymous struct fields are ignored.
 //
@@ -609,7 +608,6 @@ func (sv stringValue) isValueNil() bool {
 // Bencode cannot represent cyclic data structures and Marshal does not
 // handle them.  Passing cyclic structures to Marshal will result in
 // an infinite recursion.
-//
 func Marshal(w io.Writer, val interface{}) error {
 	return writeValue(w, reflect.ValueOf(val))
 }
