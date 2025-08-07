@@ -284,7 +284,7 @@ func Unmarshal(r io.Reader, val interface{}) (err error) {
 	// If e represents a value, the answer won't get back to the
 	// caller.  Make sure it's a pointer.
 	if reflect.TypeOf(val).Kind() != reflect.Ptr {
-		err = errors.New("Attempt to unmarshal into a non-pointer")
+		err = errors.New("attempt to unmarshal into a non-pointer")
 		return
 	}
 	err = unmarshalValue(r, reflect.Indirect(reflect.ValueOf(val)))
