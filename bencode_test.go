@@ -338,8 +338,8 @@ func TestMarshalWithOmitEmptyFieldEmpty(t *testing.T) {
 		t.Fatal(err)
 	}
 	buf2 := "d3:Agei42e9:FirstName4:Jack8:LastName6:Daniele"
-	if string(buf.Bytes()) != buf2 {
-		t.Fatalf("Wrong encoding, expected first line got second line\n`%s`\n`%s`\n", buf2, string(buf.Bytes()))
+	if buf.String() != buf2 {
+		t.Fatalf("Wrong encoding, expected first line got second line\n`%s`\n`%s`\n", buf2, buf.String())
 	}
 }
 
@@ -351,8 +351,8 @@ func TestMarshalWithOmitEmptyFieldNonEmpty(t *testing.T) {
 		t.Fatal(err)
 	}
 	buf2 := "d3:Agei42e5:Arrayl5:first6:seconde9:FirstName4:Jack7:Ignored11:Not ignored8:LastName6:Daniel9:otherName6:Whiskye"
-	if string(buf.Bytes()) != buf2 {
-		t.Fatalf("Wrong encoding, expected first line got second line\n`%s`\n`%s`\n", buf2, string(buf.Bytes()))
+	if buf.String() != buf2 {
+		t.Fatalf("Wrong encoding, expected first line got second line\n`%s`\n`%s`\n", buf2, buf.String())
 	}
 }
 

@@ -506,7 +506,7 @@ func writeStruct(w io.Writer, val reflect.Value) (err error) {
 
 func writeValue(w io.Writer, val reflect.Value) (err error) {
 	if !val.IsValid() {
-		err = errors.New("Can't write null value")
+		err = errors.New("can't write null value")
 		return
 	}
 
