@@ -228,16 +228,16 @@ func BenchmarkDecodeAll(b *testing.B) {
 }
 
 type structA struct {
-	A int    "a"
+	A int    `bencode:"a"`
 	B string `example:"data" bencode:"b"`
 	C string `example:"data2" bencode:"sea monster"`
 }
 
 type structNested struct {
-	T string            "t"
-	Y string            "y"
-	Q string            "q"
-	A map[string]string "a"
+	T string            `bencode:"t"`
+	Y string            `bencode:"y"`
+	Q string            `bencode:"q"`
+	A map[string]string `bencode:"a"`
 }
 
 var (
