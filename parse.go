@@ -56,11 +56,11 @@ type builder interface {
 // Deprecated: This type is currently unused. It is exposed for backwards
 // compatability. The public API that previously used this type,
 //
-//    Unmarshal(r Reader, val interface{}) (err error)
+//	Unmarshal(r Reader, val interface{}) (err error)
 //
 // is now
 //
-//    Unmarshal(r io.Reader, val interface{}) (err error)
+//	Unmarshal(r io.Reader, val interface{}) (err error)
 //
 // Which is compatible, since any Reader is also an io.Reader.
 // Clients should drop their use of this type. It may be removed in the future.
@@ -98,7 +98,7 @@ func decodeString(r *bufio.Reader) (data string, err error) {
 		return
 	}
 	if length < 0 {
-		err = errors.New("Bad string length")
+		err = errors.New("bad string length")
 		return
 	}
 
@@ -207,7 +207,7 @@ func parseFromReader(r *bufio.Reader, build builder) (err error) {
 		} else if f, err = strconv.ParseFloat(str, 64); err == nil {
 			build.Float64(f)
 		} else {
-			err = errors.New("Bad integer")
+			err = errors.New("bad integer")
 		}
 
 	case c == 'l':
@@ -233,7 +233,7 @@ func parseFromReader(r *bufio.Reader, build builder) (err error) {
 			n++
 		}
 	default:
-		err = fmt.Errorf("Unexpected character: '%v'", c)
+		err = fmt.Errorf("unexpected character: '%v'", c)
 	}
 exit:
 	build.Flush()

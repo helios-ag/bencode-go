@@ -249,9 +249,9 @@ func (b *structBuilder) Key(k string) builder {
 //
 // unmarshalling the bencode syntax string
 //
-//	"d5:emailld5:where4:home4:addr15:gre@example.come\
-//  d5:where4:work4:addr12:gre@work.comee4:name14:Gr\
-//  ace R. Emlin7:address15:123 Main Streete"
+//		"d5:emailld5:where4:home4:addr15:gre@example.come\
+//	 d5:where4:work4:addr12:gre@work.comee4:name14:Gr\
+//	 ace R. Emlin7:address15:123 Main Streete"
 //
 // via Unmarshal(s, &r) is equivalent to assigning
 //
@@ -280,12 +280,11 @@ func (b *structBuilder) Key(k string) builder {
 //
 // To unmarshal a top-level bencode array, pass in a pointer to an empty
 // slice of the correct type.
-//
 func Unmarshal(r io.Reader, val interface{}) (err error) {
 	// If e represents a value, the answer won't get back to the
 	// caller.  Make sure it's a pointer.
 	if reflect.TypeOf(val).Kind() != reflect.Ptr {
-		err = errors.New("Attempt to unmarshal into a non-pointer")
+		err = errors.New("attempt to unmarshal into a non-pointer")
 		return
 	}
 	err = unmarshalValue(r, reflect.Indirect(reflect.ValueOf(val)))
@@ -473,21 +472,24 @@ func writeStruct(w io.Writer, val reflect.Value) (err error) {
 	}
 
 	typ := val.Type()
+	var svList stringValueArray
 
-	numFields := val.NumField()
-	svList := make(stringValueArray, numFields)
-
-	for i := 0; i < numFields; i++ {
+	for i := 0; i < val.NumField(); i++ {
 		field := typ.Field(i)
-		bencodeKey(field, &svList[i])
+		// Skip unexported fields
+		if field.PkgPath != "" {
+			continue
+		}
+
+		var sv stringValue
+		bencodeKey(field, &sv)
 		// The tag `bencode:"-"` should mean that this field must be ignored
 		// See https://golang.org/pkg/encoding/json/#Marshal or https://golang.org/pkg/encoding/xml/#Marshal
-		// We set a zero value so that it is ignored by the writeSVList() function
-		if svList[i].key == "-" {
-			svList[i].value = reflect.Value{}
-		} else {
-			svList[i].value = val.Field(i)
+		if sv.key == "-" {
+			continue
 		}
+		sv.value = val.Field(i)
+		svList = append(svList, sv)
 	}
 
 	err = writeSVList(w, svList)
@@ -504,7 +506,7 @@ func writeStruct(w io.Writer, val reflect.Value) (err error) {
 
 func writeValue(w io.Writer, val reflect.Value) (err error) {
 	if !val.IsValid() {
-		err = errors.New("Can't write null value")
+		err = errors.New("can't write null value")
 		return
 	}
 
@@ -586,11 +588,11 @@ func (sv stringValue) isValueNil() bool {
 // but can be specified in the struct field's tag value. The text of
 // the struct field's tag value is the key name. Examples:
 //
-//   // Field appears in bencode as key "Field".
-//   Field int
+//	// Field appears in bencode as key "Field".
+//	Field int
 //
-//   // Field appears in bencode as key "myName".
-//   Field int "myName"
+//	// Field appears in bencode as key "myName".
+//	Field int "myName"
 //
 // Anonymous struct fields are ignored.
 //
@@ -606,7 +608,6 @@ func (sv stringValue) isValueNil() bool {
 // Bencode cannot represent cyclic data structures and Marshal does not
 // handle them.  Passing cyclic structures to Marshal will result in
 // an infinite recursion.
-//
 func Marshal(w io.Writer, val interface{}) error {
 	return writeValue(w, reflect.ValueOf(val))
 }

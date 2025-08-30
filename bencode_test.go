@@ -228,16 +228,16 @@ func BenchmarkDecodeAll(b *testing.B) {
 }
 
 type structA struct {
-	A int    "a"
+	A int    `bencode:"a"`
 	B string `example:"data" bencode:"b"`
 	C string `example:"data2" bencode:"sea monster"`
 }
 
 type structNested struct {
-	T string            "t"
-	Y string            "y"
-	Q string            "q"
-	A map[string]string "a"
+	T string            `bencode:"t"`
+	Y string            `bencode:"y"`
+	Q string            `bencode:"q"`
+	A map[string]string `bencode:"a"`
 }
 
 var (
@@ -338,8 +338,8 @@ func TestMarshalWithOmitEmptyFieldEmpty(t *testing.T) {
 		t.Fatal(err)
 	}
 	buf2 := "d3:Agei42e9:FirstName4:Jack8:LastName6:Daniele"
-	if string(buf.Bytes()) != buf2 {
-		t.Fatalf("Wrong encoding, expected first line got second line\n`%s`\n`%s`\n", buf2, string(buf.Bytes()))
+	if buf.String() != buf2 {
+		t.Fatalf("Wrong encoding, expected first line got second line\n`%s`\n`%s`\n", buf2, buf.String())
 	}
 }
 
@@ -351,13 +351,12 @@ func TestMarshalWithOmitEmptyFieldNonEmpty(t *testing.T) {
 		t.Fatal(err)
 	}
 	buf2 := "d3:Agei42e5:Arrayl5:first6:seconde9:FirstName4:Jack7:Ignored11:Not ignored8:LastName6:Daniel9:otherName6:Whiskye"
-	if string(buf.Bytes()) != buf2 {
-		t.Fatalf("Wrong encoding, expected first line got second line\n`%s`\n`%s`\n", buf2, string(buf.Bytes()))
+	if buf.String() != buf2 {
+		t.Fatalf("Wrong encoding, expected first line got second line\n`%s`\n`%s`\n", buf2, buf.String())
 	}
 }
 
 func TestMarshalDifferentTypes(t *testing.T) {
-
 	buf := new(bytes.Buffer)
 	Marshal(buf, []byte{'1', '2', '3'})
 	if buf.String() != "3:123" {
@@ -368,5 +367,40 @@ func TestMarshalDifferentTypes(t *testing.T) {
 	Marshal(buf, []int{1, 2, 3})
 	if buf.String() != "li1ei2ei3ee" {
 		t.Fatalf("Incorrectly encoded byte array, got %s", buf.String())
+	}
+}
+
+type publicPrivateStruct struct {
+	PublicField  string
+	privateField string
+}
+
+func TestMarshalOnlyPublicFields(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    interface{}
+		expected string
+	}{
+		{
+			name: "struct with public and private fields",
+			input: publicPrivateStruct{
+				PublicField:  "public",
+				privateField: "private",
+			},
+			expected: "d11:PublicField6:publice",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var buf bytes.Buffer
+			err := Marshal(&buf, tt.input)
+			if err != nil {
+				t.Fatalf("Marshal() error = %v", err)
+			}
+			if got := buf.String(); got != tt.expected {
+				t.Errorf("Marshal() = %v, want %v", got, tt.expected)
+			}
+		})
 	}
 }
